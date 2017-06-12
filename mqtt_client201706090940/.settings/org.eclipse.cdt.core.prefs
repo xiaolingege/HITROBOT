@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1951740891/LD_LIBRARY_PATH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1951740891/LD_LIBRARY_PATH/operation=replace
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1951740891/LD_LIBRARY_PATH/value=${workspace_loc\:/${ProjName}/Debug}
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1951740891/append=true
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1951740891/appendContributed=true
