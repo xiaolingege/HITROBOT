@@ -1,0 +1,109 @@
+#include    "magserv.h"
+#include    "stm32f10x.h"
+#include    "stdbool.h"
+#include    "rs485communicate.h"
+
+static float CarSpeedVx = 0;
+static float CarSpeedVw = 0;
+
+u8 MagReceiveDate[MAGRCVSIZE] = {0};
+u8 MagReceiveCount = 0;
+
+
+ static float StationCalc(const u8 * MagSense)
+{
+    
+    static float StationForReturn = 0;
+    u32 magDateBuffer = 0;
+    if(MagReceiveCount >= 10)
+    {
+        if(isCheckHead(MagSense))
+        {
+            magDateBuffer = (MagSense[5] << 16) | (MagSense[6] << 8) | (MagSense[7]); 
+            MagReceiveCount = 0;
+            if(0 != magDateBuffer)
+            {
+                StationForReturn = MagCenterCalc(magDateBuffer);
+            }
+            else
+            {
+                StationForReturn = 0;
+            }
+        }
+        MagReceiveCount = 0;
+    }
+    return StationForReturn;
+}
+
+void USART1_IRQHandler(void)
+{
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+ 
+	{
+        MagReceiveDate[MagReceiveCount++] = USART_ReceiveData(USART1);
+        if(MagReceiveDate[0] != 0x52)
+        {
+            MagReceiveCount = 0;
+        }
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+
+	}
+}
+
+static  bool isCheckHead(const u8 * head)
+{
+    u8 hedbuffer[5] = {0x52, 0x4D, 0x67, 0x73, 0x77};
+    u8 i =0;
+    for(i = 0; i < 5;i ++)
+    {
+        if(head[i] != hedbuffer[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MagToSpeed(void)
+{
+    if(CarSpeedVx < 0.5)
+    {
+        CarSpeedVx += 0.01;
+    }
+    CarSpeedVw = StationCalc(MagReceiveDate);
+    SendSpeedToCtrl(CarSpeedVx * 400, 5 * CarSpeedVw);
+}
+
+
+static float MagCenterCalc(u32 magsenseBuffer)
+{
+   float weight[16] ;
+   float magCenterForReturn = 0;
+   float signal[16];
+   u8 i = 0;
+    signal [15] = 1 & magsenseBuffer;
+    for(i = 0 ;i < 16; i++)
+    {
+        weight[i] = (float)i-7.5;  
+    }
+    for(i = 8; i < 16; i ++)
+    {
+        signal [i]  = 1 & (magsenseBuffer >> ( i)); 
+    }
+    for(i = 1 ;i < 8 ;i ++)
+    {
+        signal [i] = 1 & (magsenseBuffer >> (16 + i)); 
+    }
+    for(i = 0; i < 16; i++)
+    {
+        magCenterForReturn += (weight[i] * signal[i]);
+    }
+   return (magCenterForReturn * 10.0f);
+    
+}
+
+
+
+
+
+

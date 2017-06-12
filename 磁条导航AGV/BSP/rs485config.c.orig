@@ -1,0 +1,58 @@
+#include    "rs485config.h"
+#include    "stm32f10x.h"
+
+#define     RS485CTRLPort    GPIOF
+#define     RS485CTRLPin     GPIO_Pin_11
+
+
+
+void AgvControlCOMConfig(void)
+{
+    Rs485CtrlConfig();
+    Rs485Config();
+}
+
+static void Rs485CtrlConfig(void)
+{
+     GPIO_InitTypeDef  GPIO_InitStructure;
+	 GPIO_InitStructure.GPIO_Pin = RS485CTRLPin; 		 //与PF11管脚连接
+	 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	 GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	 GPIO_Init(RS485CTRLPort, &GPIO_InitStructure);   
+}
+
+void USART_OUT(USART_TypeDef* USARTx, uint8_t *Data, uint16_t Len)
+{
+	uint16_t i;
+	for (i = 0; i < Len; i++)
+	{
+		USART_SendData(USARTx, Data[i]);
+		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);      //判断是否发送完成。 
+	}
+}
+
+static void Rs485Config(void)
+{
+ 	USART_InitTypeDef USART_InitStructure;
+	USART_InitStructure.USART_BaudRate = 115200;					//速率115200bps
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;		//数据位8位
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;			//停止位1位
+	USART_InitStructure.USART_Parity = USART_Parity_No;				//无校验位
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;   //无硬件流控
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;					//收发模式
+	USART_Init(USART2, &USART_InitStructure);							//配置串口参数函数
+//	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);                      //使能接收中断
+	USART_Cmd(USART2, ENABLE);   
+}
+
+
+
+
+
+
+
+
+
+
+
+
