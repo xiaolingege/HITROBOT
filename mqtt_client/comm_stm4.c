@@ -1,9 +1,3 @@
-/*
- * comm_stm4.c
- *
- *  Created on: 2017-5-19
- *      Author: firefly
- */
 #include "commeinclude.h"
 
 static void DebugShowSysTime(void);
@@ -12,7 +6,7 @@ static char* json_car_status(SendServerStruct CarStatus);
 static SendServerStruct uart_buffer_analysis(char * receivedata, struct timeval uba_rcv_time);
 static int debugSendCount = 0;
 static long scheduleTime = 0;
-static char timeRcvServer[40] = { '0\0' };
+static char timeRcvServer[40] = { '0','\0' };
 DList *dataBufferFromUart = NULL;
 char  DebugUartBuffer[] = "$MOVETO,10.10,20.20,30.30,40.40,50.50*";
 
@@ -20,7 +14,6 @@ void* thread_uart(void* arg) {
 	uint tu_uart_read_count_once;
 	uchar tu_read_uart_file[5] = { 0 };
 	uchar tu_uart_pack_buffer[200];
-	//uchar csend = 'A';
 	uchar tu_read_buffer_index = 0;
 	struct timeval tu_schedule_time = { 0, 0 };
 	int tu_uart_fd;
@@ -45,7 +38,6 @@ void* thread_uart(void* arg) {
 				dataBufferFromUart = InitList(tu_uart_pack_buffer);
 				pthread_mutex_unlock(&mutex);
 				tu_read_buffer_index = 0;
-				//DebugShowSysTime();
 				printf("uart size is :%d\n", dataBufferFromUart->size);
 			}
 		}
@@ -58,7 +50,7 @@ void* thread_uart(void* arg) {
 		static long sendcounttom4 = 0;
 		static long reccountm4 = 0;
 		char  send_buffer_uart[100];
-		int i ;
+		int i;
 		tu_uart_read_count_once = read(tu_uart_fd, tu_read_uart_file, sizeof(tu_read_uart_file));
 		if (tu_uart_read_count_once > 0) {
 			if (tu_read_uart_file[0] == UART_HEAD_SIGNAL) {
@@ -73,26 +65,15 @@ void* thread_uart(void* arg) {
 				InsAfterTail(dataBufferFromUart, tu_uart_creat_new_pnode);
 				pthread_mutex_unlock(&mutex);
 				tu_read_buffer_index = 0;
-				reccountm4 ++;
-//				printf("receive Number is %d\n", reccountm4);
+				reccountm4++;
 				DebugShowSysTime();
 			}
 			else {
 				tu_uart_pack_buffer[tu_read_buffer_index++] = tu_read_uart_file[0];
 			}
 		}
-		if (false)
-		{
-	//		reco = write(tu_uart_fd, csend,  1);
-			for (tu_uart_send_len_count = 0; DebugUartBuffer[tu_uart_send_len_count] != '*'; tu_uart_send_len_count++);
-			reco = write(tu_uart_fd, DebugUartBuffer, tu_uart_send_len_count + 1);
-			sendcounttom4 ++;
-//			printf("have send Number:%d\n", sendcounttom4);
-		}
-
-if (isCheckSendTimer(UART_COM) && isMqttRcv100Packs()) {
-	tu_uart_receive_pbuffer = read_buffer_of_server();
-		//if(false){
+		if (isCheckSendTimer(UART_COM) && isMqttRcv100Packs()) {
+			tu_uart_receive_pbuffer = read_buffer_of_server();
 			if (NULL != tu_uart_receive_pbuffer) {
 				tu_schedule_time.tv_sec = 0;
 				tu_schedule_time.tv_usec = 0;
@@ -100,31 +81,26 @@ if (isCheckSendTimer(UART_COM) && isMqttRcv100Packs()) {
 				gettimeofday(&tu_schedule_time, 0);
 				scheduleTime = (tu_schedule_time.tv_sec - tu_uart_receive_pbuffer->head->receivetime.tv_sec) * 1000\
 					+ (tu_schedule_time.tv_usec - tu_uart_receive_pbuffer->head->receivetime.tv_usec) / 1000;
-				//printf("schedule time is %d\n", scheduleTime);
 				tu_uart_send_len_count = 0;
-				for (i = 0; tu_uart_receive_pbuffer->head->data[i] != '*'; i++){
+				for (i = 0; tu_uart_receive_pbuffer->head->data[i] != '*'; i++) {
 					tu_uart_send_len_count++;
 				}
-				for(i = 0; i < tu_uart_send_len_count +1; i++){
+				for (i = 0; i < tu_uart_send_len_count + 1; i++) {
 					send_buffer_uart[i] = tu_uart_receive_pbuffer->head->data[i];
 				}
-			//	printf("send buffer before to uart is %s\n",send_buffer_uart);
 				write(tu_uart_fd, tu_uart_receive_pbuffer->head->data, tu_uart_send_len_count + 1);
-			//	printf("send buffer after to uart is %d\n",tu_uart_send_len_count + 1);
-				tu_uart_send_len_count += 1 ;
+				tu_uart_send_len_count += 1;
 				for (; tu_uart_receive_pbuffer->head->data[tu_uart_send_len_count] != '\0'; tu_uart_send_len_count++) {
 					timeRcvServer[tu_uart_time_count++] = tu_uart_receive_pbuffer->head->data[tu_uart_send_len_count];
 				}
 				timeRcvServer[tu_uart_time_count] = '\0';
 				debugSendCount++;
-				//printf("uart send Number is: %d\n", debugSendCount);
 				pthread_mutex_lock(&mutex);
 				free(DelHeadNode(tu_uart_receive_pbuffer));
 				pthread_mutex_unlock(&mutex);
 				DEBUG_TIMELOST = (DEBUG_TPSTART.tv_sec * 1000000L + DEBUG_TPSTART.tv_usec) / 1000.0f;
 				gettimeofday(&DEBUG_TPSTART, NULL);
 				DEBUG_TIMEUSE = (DEBUG_TPSTART.tv_sec * 1000000L + DEBUG_TPSTART.tv_usec) / 1000.0f - DEBUG_TIMELOST;
-				//	printf("process time is %lf ms************************\n", DEBUG_TIMEUSE);
 			}
 		}
 		sleep(0.0003);
@@ -136,7 +112,6 @@ if (isCheckSendTimer(UART_COM) && isMqttRcv100Packs()) {
 static void DebugShowSysTime(void) {
 	struct timeval tv;
 	gettimeofday(&tv, 0);
-//	printf("time%d:%u\n", tv.tv_sec, tv.tv_usec);
 }
 
 char * json_car_status(SendServerStruct CarStatus) {
@@ -145,7 +120,7 @@ char * json_car_status(SendServerStruct CarStatus) {
 	long jcs_scheduletime = 0;
 	char jcs_send[50];
 	jcs_scheduletime = get_schedule_time();
-	sprintf(jcs_send,"%d",jcs_scheduletime );
+	sprintf(jcs_send, "%d", jcs_scheduletime);
 	jcs_json_object_buffer = cJSON_CreateObject();
 	cJSON_AddStringToObject(jcs_json_object_buffer, "sendTime", timeRcvServer);
 	cJSON_AddStringToObject(jcs_json_object_buffer, "longitude", CarStatus.longitude);
@@ -172,7 +147,6 @@ static SendServerStruct uart_buffer_analysis(char * receivedata, struct timeval 
 	} uba_count = { 0, 0, 0, 0, 0, 0, 0 };
 	SendServerStruct uba_division_uart_buffer;
 	uchar str = ',';
-//	printf("string is %s\n", receivedata);
 	for (uba_count.index = 0; receivedata[uba_count.index] != '*'; uba_count.index++) {
 		if (receivedata[uba_count.index] == str) {
 			uba_count.division++;

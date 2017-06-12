@@ -29,7 +29,6 @@ Position MakeNode(Item * i){
 	PNode p = NULL;
 	unsigned short count = 0;
 	p = (PNode)malloc(sizeof(Node));
-//	printf("save data is %s\n",i);
 	if(p!=NULL){
 
 		for(count = 0; count < UARTDATEMAXSIZE; count ++){

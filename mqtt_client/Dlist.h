@@ -36,7 +36,6 @@ extern Position GetTail(DList *plist);//查找表尾指针
 extern PNode InsAfterTail(DList *plist, PNode s);//在表尾增加一个节点
 extern PNode DelHeadNode(DList *plist);//删除头节点
 
-
 typedef struct CommTempStruct {
 	char time[COMMTEMPSTRUCTSIZE];
 	char longitude[COMMTEMPSTRUCTSIZE];
