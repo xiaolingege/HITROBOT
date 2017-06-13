@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "commtype.h"
 
 #define SPEEDSENDTASKPRIO   1
 #define MAGSENSEQUERYPRIO   2
