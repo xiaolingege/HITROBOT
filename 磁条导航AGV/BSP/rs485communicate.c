@@ -1,4 +1,3 @@
-#include    "stdbool.h"
 #include    "stm32f10x.h"
 #include    "rs485communicate.h"
 #include    "stm32f10x.h"

@@ -1,6 +1,5 @@
 #include "magserv.h"
 #include "stm32f10x.h"
-#include "stdbool.h"
 #include "rs485communicate.h"
 
 #define MAGSERVPI   0.05f

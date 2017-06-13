@@ -1,7 +1,6 @@
 #ifndef MAGSERV_H
 #define MAGSERV_H
 #include    "stm32f10x.h"
-#include    "stdbool.h"
 
 #define MAGRCVSIZE  (15)
 
