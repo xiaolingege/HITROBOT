@@ -4,7 +4,7 @@
 #include "rs485communicate.h"
 
 #define MAGSERVPI   0.05f
-
+#define MAGSENSEHEADER {0x52, 0x4D, 0x67, 0x73, 0x77}
 static float StationCalc(const u8 * MagSense);
 static  bool isCheckHead(const u8 * head);
 static float mag_center_calc(u32 magsenseBuffer);
@@ -68,7 +68,7 @@ void USART1_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------*/
 static  bool isCheckHead(const u8 * head)
 {
-	u8 hedbuffer[5] = { magSenseHeader.pos1, magSenseHeader.pos2, magSenseHeader.pos3, magSenseHeader.pos4, magSenseHeader.pos5 };
+	u8 hedbuffer[5] = MAGSENSEHEADER;
 	u8 i = 0;
 	for (i = 0; i < 5; i++)
 	{
